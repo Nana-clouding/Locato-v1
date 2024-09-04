@@ -3,62 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ユーザー情報の取得</title>
+    <title>位置情報取得</title>
     <script>
-        function getUserInfo() {
-            // IPアドレスに基づく情報取得
-            fetch('https://ipapi.co/json/')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('ip').textContent = `IPアドレス: ${data.ip}`;
-                    document.getElementById('location').textContent = `国: ${data.country_name}, 地域: ${data.region}, 都市: ${data.city}`;
-                    document.getElementById('latitude').textContent = `緯度: ${data.latitude}`;
-                    document.getElementById('longitude').textContent = `経度: ${data.longitude}`;
-                    document.getElementById('timezone').textContent = `タイムゾーン: ${data.timezone}`;
-                    document.getElementById('language').textContent = `言語: ${data.languages}`;
-                })
-                .catch(error => {
-                    document.getElementById('info').textContent = '情報の取得に失敗しました。';
-                });
-
-            // 現在の時間と日付
-            const now = new Date();
-            document.getElementById('date').textContent = `西暦: ${now.getFullYear()} 年, 現在の日時: ${now.toLocaleString()}`;
-
-            // ブラウザ情報取得
-            const browser = navigator.userAgent;
-            document.getElementById('browser').textContent = `ブラウザ: ${browser}`;
-
-            // デバイス情報取得
-            const platform = navigator.platform;
-            document.getElementById('device').textContent = `デバイス: ${platform}`;
-
-            // ネットワーク回線速度
-            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-            if (connection) {
-                document.getElementById('connection').textContent = `回線速度: ${connection.effectiveType}`;
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
             } else {
-                document.getElementById('connection').textContent = `回線速度: 情報を取得できませんでした。`;
+                alert("このブラウザでは位置情報の取得がサポートされていません。");
             }
         }
 
-        window.onload = function() {
-            getUserInfo();
-        };
+        function showPosition(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+            document.getElementById('location').textContent = `緯度: ${latitude}, 経度: ${longitude}`;
+        }
+
+        function showError(error) {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    document.getElementById('location').textContent = "位置情報の取得が拒否されました。";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    document.getElementById('location').textContent = "位置情報が利用できません。";
+                    break;
+                case error.TIMEOUT:
+                    document.getElementById('location').textContent = "位置情報の取得がタイムアウトしました。";
+                    break;
+                case error.UNKNOWN_ERROR:
+                    document.getElementById('location').textContent = "不明なエラーが発生しました。";
+                    break;
+            }
+        }
     </script>
 </head>
 <body>
-    <h1>ユーザー情報の検索結果</h1>
-    <h2>wifi接続していないと正確な位置情報は検索できません。</h2>
-    <p id="ip">IPアドレスを取得しています...</p>
-    <p id="location">位置情報を取得しています...</p>
-    <p id="latitude">緯度を取得しています...</p>
-    <p id="longitude">経度を取得しています...</p>
-    <p id="timezone">タイムゾーンを取得しています...</p>
-    <p id="language">言語情報を取得しています...</p>
-    <p id="date">日時情報を取得しています...</p>
-    <p id="browser">ブラウザ情報を取得しています...</p>
-    <p id="device">デバイス情報を取得しています...</p>
-    <p id="connection">回線速度を取得しています...</p>
+    <h1>位置情報取得</h1>
+    <button onclick="getLocation()">位置情報を取得</button>
+    <p id="location">位置情報がここに表示されます...</p>
 </body>
 </html>
